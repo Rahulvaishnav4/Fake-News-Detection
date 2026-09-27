@@ -3,9 +3,7 @@
  * Centralized HTTP service for interacting with the backend API
  */
 
-const API_BASE = (window.location.protocol === 'file:') 
-  ? 'http://127.0.0.1:8000' 
-  : window.location.origin;
+const API_BASE = 'https://fake-news-detection-2rwr.onrender.com';
 
 class NewsAPI {
   /**
