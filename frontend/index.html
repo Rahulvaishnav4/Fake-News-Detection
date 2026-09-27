@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fake News Detection System | Real-Time News Verification Engine</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10'/><path d='m9 12 2 2 4-4'/></svg>" />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col antialiased transition-colors duration-200">
+
+  <!-- ==================== NAVIGATION BAR ==================== -->
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="window.App.switchView('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+            Fake News Detection System
+          </span>
+          <span class="block text-[10px] font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase">
+            Multi-Signal Verification Engine
+          </span>
+        </div>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <button onclick="window.App.switchView('home')" data-view="home" class="nav-link text-blue-600 dark:text-blue-400 font-bold transition">
+          Home
+        </button>
+        <button onclick="window.App.switchView('verify')" data-view="verify" class="nav-link text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i> Verify Claim
+        </button>
+        <button onclick="window.App.switchCategory('all')" data-view="latest" class="nav-link text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          Latest News
+        </button>
+        <button onclick="window.App.switchView('how-it-works')" data-view="how-it-works" class="nav-link text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          How It Works
+        </button>
+        <button onclick="window.App.switchView('history')" data-view="history" class="nav-link text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          History & Stats
+        </button>
+        <button onclick="window.App.switchView('about')" data-view="about" class="nav-link text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">
+          About
+        </button>
+      </nav>
+
+      <!-- Right Controls: Theme Toggle & CTA -->
+      <div class="flex items-center gap-3">
+        <button 
+          id="theme-toggle-btn"
+          aria-label="Toggle dark mode"
+          class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+        >
+          <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+
+        <button 
+          onclick="window.App.switchView('verify')"
+          class="hidden sm:inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition"
+        >
+          <i data-lucide="shield-alert" class="w-4 h-4"></i> Check News
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button 
+          onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+          class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+      <button onclick="window.App.switchView('home'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Home</button>
+      <button onclick="window.App.switchView('verify'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Verify Claim</button>
+      <button onclick="window.App.switchCategory('all'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Latest News</button>
+      <button onclick="window.App.switchView('how-it-works'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">How It Works</button>
+      <button onclick="window.App.switchView('history'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">History & Stats</button>
+      <button onclick="window.App.switchView('about'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">About</button>
+      <button onclick="window.App.switchView('contact'); document.getElementById('mobile-menu').classList.add('hidden')" class="block w-full text-left py-2 px-3 text-sm font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Contact</button>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- -------------------- 1. VIEW: HOME -------------------- -->
+    <div id="view-home" class="space-y-8">
+      
+      <!-- Hero Section -->
+      <section class="text-center max-w-4xl mx-auto pt-4 pb-2 space-y-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-bold border border-blue-200/60 dark:border-blue-900/40">
+          <i data-lucide="radio" class="w-3.5 h-3.5 animate-pulse text-blue-500"></i>
+          <span>Live Google-Powered News Search & Fact-Checking Engine</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+          Verify Any News Before You <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Believe or Share</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Search for any news headline, article URL, or viral rumor. Our automated multi-signal system analyzes authoritative reporting across Google News to determine whether it is 
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">Likely REAL</span>, 
+          <span class="font-bold text-rose-600 dark:text-rose-400">Likely FAKE</span>, or 
+          <span class="font-bold text-amber-600 dark:text-amber-400">UNCERTAIN</span>.
+        </p>
+
+        <!-- Prominent Search Box -->
+        <div class="max-w-3xl mx-auto pt-2">
+          <form id="main-search-form" class="relative flex flex-col sm:flex-row items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition">
+            <div class="flex items-center gap-3 w-full px-3 py-2">
+              <i data-lucide="search" class="w-5 h-5 text-slate-400 shrink-0"></i>
+              <input 
+                id="main-search-input"
+                type="text" 
+                placeholder="Enter a news headline, topic, viral claim, or article URL..."
+                class="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
+              <button 
+                type="submit"
+                class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-blue-600/20"
+              >
+                <i data-lucide="search" class="w-4 h-4"></i> Search News
+              </button>
+              <button 
+                type="button"
+                onclick="const val = document.getElementById('main-search-input').value.trim(); if(val) window.App.triggerVerification(val);"
+                class="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
+                title="Directly verify this claim"
+              >
+                <i data-lucide="shield-check" class="w-4 h-4"></i> Verify
+              </button>
+            </div>
+          </form>
+
+          <!-- Quick Example Queries -->
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-slate-500 dark:text-slate-400">
+            <span class="font-medium text-slate-400">Try testing:</span>
+            <button onclick="document.getElementById('main-search-input').value='India wins cricket world cup'; window.App.triggerVerification('India wins cricket world cup');" class="bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-2.5 py-1 rounded-lg transition border border-slate-200/60 dark:border-slate-700/60">
+              "India wins cricket world cup"
+            </button>
+            <button onclick="document.getElementById('main-search-input').value='ISRO launches solar mission Aditya-L1'; window.App.triggerVerification('ISRO launches solar mission Aditya-L1');" class="bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 px-2.5 py-1 rounded-lg transition border border-slate-200/60 dark:border-slate-700/60">
+              "ISRO launches solar mission"
+            </button>
+            <button onclick="document.getElementById('main-search-input').value='SHOCKING: Miracle lemon juice cure eliminates cancer in 24 hours!!'; window.App.triggerVerification('SHOCKING: Miracle lemon juice cure eliminates cancer in 24 hours!!');" class="bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-slate-700 hover:text-rose-600 px-2.5 py-1 rounded-lg transition border border-slate-200/60 dark:border-slate-700/60">
+              "Miracle lemon cancer cure" (Fake test)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Category Filter Tabs (Scrollable on mobile) -->
+      <section class="border-y border-slate-200 dark:border-slate-800 py-3">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="categories-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Dashboard Grid (Latest News + Sidebar) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left: Latest News Stream (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="newspaper" class="w-5 h-5 text-blue-600"></i>
+              Latest Live News
+            </h2>
+            <span class="text-xs font-semibold text-slate-400">Google News Live Feed</span>
+          </div>
+
+          <!-- Cards Grid -->
+          <div id="latest-news-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- News Cards Injected Here -->
+          </div>
+        </div>
+
+        <!-- Right: Trending & Quick Verification Sidebar (4 cols) -->
+        <div class="lg:col-span-4 space-y-6">
+          
+          <!-- Quick Verification Banner Card -->
+          <div class="bg-gradient-to-br from-blue-900 to-indigo-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+            <div class="relative z-10 space-y-3">
+              <div class="inline-flex items-center gap-1.5 bg-blue-500/30 border border-blue-400/30 px-2.5 py-1 rounded-md text-xs font-semibold">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-300"></i> Instant Fact Check
+              </div>
+              <h3 class="text-lg font-bold leading-tight">Got a Forwarded WhatsApp Message or Rumor?</h3>
+              <p class="text-xs text-blue-100 leading-relaxed">
+                Paste any controversial message, headline, or claim to cross-verify it against hundreds of verified news agencies.
+              </p>
+              <button 
+                onclick="window.App.switchView('verify')" 
+                class="w-full bg-white hover:bg-slate-100 text-blue-900 text-xs font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow"
+              >
+                <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i> Open Verification Lab
+              </button>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl"></div>
+          </div>
+
+          <!-- Trending News Card -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-rose-500"></i>
+                Trending Stories
+              </h3>
+              <span class="text-[11px] font-semibold text-slate-400">Real-Time</span>
+            </div>
+
+            <div id="trending-news-list" class="space-y-2">
+              <!-- Trending Items injected here -->
+            </div>
+          </div>
+
+          <!-- Credibility Signals Legend Card -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-blue-500"></i>
+              Verification Badges Legend
+            </h3>
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center gap-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
+                <span><strong>Likely REAL:</strong> Corroborated by 2+ Tier-1 wire agencies with zero contradictory reports.</span>
+              </div>
+              <div class="flex items-center gap-2.5 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-300">
+                <span class="w-3 h-3 rounded-full bg-rose-500 shrink-0"></span>
+                <span><strong>Likely FAKE:</strong> Flagged by fact-checkers, satire source, or blatant clickbait deception.</span>
+              </div>
+              <div class="flex items-center gap-2.5 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300">
+                <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
+                <span><strong>UNCERTAIN:</strong> Inconclusive data or single unverified source. Exercise caution.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- -------------------- 2. VIEW: DEEP VERIFICATION LAB -------------------- -->
+    <div id="view-verify" class="hidden space-y-8 max-w-5xl mx-auto">
+      
+      <!-- Verification Header -->
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold">
+          <i data-lucide="shield-search" class="w-4 h-4 text-blue-600"></i> Deep Verification Lab
+        </div>
+        <h2 class="text-3xl font-black text-slate-900 dark:text-white">
+          Automated Fake News & Claim Verification
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+          Enter any complete news headline, claim, article excerpt, or web article URL to run a multi-source corroboration check.
+        </p>
+      </div>
+
+      <!-- Verification Input Box -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+        <form id="verify-form" class="space-y-4">
+          <div>
+            <label for="verify-input" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              News Claim, Headline, or Article URL to Analyze:
+            </label>
+            <textarea 
+              id="verify-input"
+              rows="3"
+              placeholder="e.g. 'WHO announces complete global elimination of malaria' or paste a URL 'https://example.com/news/...'"
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition"
+              required
+            ></textarea>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+            <div class="text-xs text-slate-400 flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-blue-500"></i>
+              <span>Evaluates 1500+ news publishers & fact-checkers</span>
+            </div>
+            <button 
+              id="verify-submit-btn"
+              type="submit"
+              class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-blue-600/20"
+            >
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Run Deep Verification
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Verification In-Progress Pipeline Animation -->
+      <div id="verification-progress" class="hidden bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm text-center space-y-6">
+        <div class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto step-dot active">
+          <i data-lucide="loader" class="w-8 h-8 animate-spin"></i>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Synthesizing Verification Signals</h3>
+          <p id="verification-step-label" class="text-sm font-medium text-blue-600 dark:text-blue-400 transition-all duration-300">
+            Extracting core claim propositions & linguistic heuristics...
+          </p>
+        </div>
+        <!-- Progress bar line -->
+        <div class="max-w-md mx-auto w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+          <div class="bg-blue-600 h-full rounded-full animate-pulse w-3/4"></div>
+        </div>
+      </div>
+
+      <!-- Verification Result Container -->
+      <div id="verification-result-container" class="hidden">
+        <!-- Rendered by UIComponents.renderVerificationDashboard -->
+      </div>
+
+    </div>
+
+    <!-- -------------------- 3. VIEW: SEARCH RESULTS -------------------- -->
+    <div id="view-search-results" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <button onclick="window.App.switchView('home')" class="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-semibold mb-1 hover:underline">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to Home
+          </button>
+          <h2 id="search-results-heading" class="text-2xl font-black text-slate-900 dark:text-white">
+            Search Results
+          </h2>
+        </div>
+
+        <!-- Sort Filter -->
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-400 font-medium">Sort by:</span>
+          <button onclick="window.App.sortSearchResults('relevant')" class="px-3 py-1.5 bg-blue-600 text-white font-semibold rounded-lg">
+            Most Relevant
+          </button>
+          <button onclick="window.App.sortSearchResults('latest')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold rounded-lg hover:bg-slate-200">
+            Latest
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div id="search-results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Results injected here -->
+      </div>
+    </div>
+
+    <!-- -------------------- 4. VIEW: HOW IT WORKS -------------------- -->
+    <div id="view-how-it-works" class="hidden space-y-10 max-w-4xl mx-auto">
+      
+      <div class="text-center space-y-3">
+        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+          How Verification Works
+        </h2>
+        <p class="text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          Our platform does not rely on opaque guessing. Instead, it grounds every assessment in real-time online corroboration, domain reliability ratings, and transparent evidence synthesis.
+        </p>
+      </div>
+
+      <!-- 7-Step Pipeline Diagram -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm space-y-8">
+        
+        <div class="space-y-6">
+          
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">1</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">User Submits Claim or Headline</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                You enter a headline, article text, viral rumor, or direct web link.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">2</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">System Queries Live Google News Index</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                The engine queries real-time Google News RSS endpoints and search indexes to retrieve matching and related news reports from current journalism.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">3</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Entity & Claim Proposition Extraction</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                Extracts key factual entities, dates, numbers, and core propositions while filtering out search noise.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">4</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Multi-Source Cross-Corroboration</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                Evaluates whether independent, reputable news organizations (Reuters, AP, BBC, The Hindu, Indian Express, PTI, etc.) are reporting the same event.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">5</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Linguistic & Credibility Scoring</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                Calculates clickbait and sensationalism indexes, flags hyperbolic shouting or conspiracy terminology, and checks our registry for known satire or unreliable websites.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shrink-0">6</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Evidence Synthesis & Assessment</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                Synthesizes the weighted signals into an objective verdict: 🟢 Likely REAL, 🔴 Likely FAKE, or 🟡 UNCERTAIN / NEEDS VERIFICATION.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-black flex items-center justify-center shrink-0">7</div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Transparent Evidence Report Delivered</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                You receive a transparent breakdown containing exact citations, sources checked, confidence score, and supporting/contradicting evidence.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Assistive Principles -->
+      <div class="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-6 rounded-2xl space-y-2">
+        <h3 class="text-sm font-bold text-blue-900 dark:text-blue-200 flex items-center gap-2">
+          <i data-lucide="shield" class="w-4 h-4 text-blue-600"></i>
+          Ethical & Assistive AI Principles
+        </h3>
+        <p class="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
+          The system strictly avoids arbitrary declarations of truth. If insufficient evidence exists or reputable reporting has not yet caught up with breaking events, the system will explicitly return <strong>UNCERTAIN / NEEDS VERIFICATION</strong>. Automated assessments are designed to empower your human critical thinking, not replace it.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- -------------------- 5. VIEW: HISTORY & STATS -------------------- -->
+    <div id="view-history" class="hidden space-y-8 max-w-5xl mx-auto">
+      
+      <div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white">
+          Verification History & Platform Analytics
+        </h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Recent verifications evaluated by the system and real-time distribution statistics.
+        </p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-slate-400 font-semibold uppercase">Total Verified</div>
+          <div id="stat-total-verifications" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-emerald-500 font-semibold uppercase">Likely Real</div>
+          <div id="stat-real-pct" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0%</div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-rose-500 font-semibold uppercase">Likely Fake</div>
+          <div id="stat-fake-pct" class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">0%</div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="text-xs text-amber-500 font-semibold uppercase">Uncertain</div>
+          <div id="stat-uncertain-pct" class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">0%</div>
+        </div>
+      </div>
+
+      <!-- History List -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Recently Analyzed Claims</h3>
+        <div id="history-list" class="space-y-3">
+          <!-- Injected via App.loadHistory() -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- -------------------- 6. VIEW: ABOUT -------------------- -->
+    <div id="view-about" class="hidden space-y-6 max-w-3xl mx-auto">
+      <h2 class="text-3xl font-black text-slate-900 dark:text-white">About Fake News Detection System</h2>
+      
+      <div class="prose dark:prose-invert text-sm text-slate-600 dark:text-slate-300 space-y-4 leading-relaxed">
+        <p>
+          The <strong>Fake News Detection System</strong> is an advanced, automated journalism verification platform built to combat the rampant spread of misinformation, deceptive clickbait, and fabricated stories online.
+        </p>
+
+        <h3 class="text-base font-bold text-slate-900 dark:text-white">Our Architecture</h3>
+        <p>
+          Unlike shallow machine learning models that guess based only on the raw words of a sentence, our system employs a <strong>multi-signal verification framework</strong>:
+        </p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li><strong>Real-Time Corroboration:</strong> Interrogates live Google News feeds to ascertain if mainstream news agencies are reporting the event.</li>
+          <li><strong>Domain Trust Hierarchy:</strong> Maintains indexed credibility scores for Tier-1 news organizations, specialized trade publications, certified fact-checkers, and satire sites.</li>
+          <li><strong>Linguistic Stylistics:</strong> Analyzes text for emotional manipulation, sensationalist clickbait phrasing, excessive capitalization, and punctuation anomalies.</li>
+          <li><strong>Grounded Caution:</strong> Never assumes truth in the absence of evidence; defaults to <em>UNCERTAIN / NEEDS VERIFICATION</em> whenever corroboration is insufficient.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- -------------------- 7. VIEW: CONTACT -------------------- -->
+    <div id="view-contact" class="hidden space-y-6 max-w-xl mx-auto">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Contact & Report Misinformation</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Have an inquiry, suggestion, or want to report a deceptive news domain?
+        </p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); alert('Thank you for reaching out! Your report has been submitted to the review queue.'); this.reset();" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Your Name</label>
+          <input type="text" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm" placeholder="John Doe" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+          <input type="email" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm" placeholder="john@example.com" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Subject</label>
+          <input type="text" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm" placeholder="Report a domain or general feedback" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Message / Report Details</label>
+          <textarea rows="4" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-sm" placeholder="Describe the issue or provide link to suspicious website..."></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition">
+          Submit Message
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded bg-blue-600 text-white flex items-center justify-center font-bold">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </div>
+        <span class="font-bold text-slate-800 dark:text-slate-200">Fake News Detection System</span>
+        <span>• Automated Evidence-Based Verification</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button onclick="window.App.switchView('home')" class="hover:text-blue-600">Home</button>
+        <button onclick="window.App.switchView('how-it-works')" class="hover:text-blue-600">How It Works</button>
+        <button onclick="window.App.switchView('history')" class="hover:text-blue-600">Stats</button>
+        <button onclick="window.App.switchView('about')" class="hover:text-blue-600">About</button>
+        <button onclick="window.App.switchView('contact')" class="hover:text-blue-600">Contact</button>
+      </div>
+
+      <div>
+        Powered by real-time Google News RSS & Search API
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
